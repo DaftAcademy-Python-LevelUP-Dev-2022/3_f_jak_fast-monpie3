@@ -15,9 +15,18 @@ from typing import Union
 app = FastAPI()
 security = HTTPBasic()
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return "Hi there!👋"
+    return """
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <p>Hi there!👋</p>
+        </body>
+    </html>
+    """
     
     
 @app.get("/start", response_class=HTMLResponse)
