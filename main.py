@@ -5,16 +5,21 @@ class HerokuApp:
     app_url = "http://127.0.0.1:8000/"  # Fill your heroku app url here
 
 
-from fastapi import FastAPI, Depends, Response, status, HTTPException
+from fastapi import FastAPI, Depends, Response, status, HTTPException, Header
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import datetime
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
+from typing import Union
 
 app = FastAPI()
 security = HTTPBasic()
 
+@app.get("/")
+def root():
+    return "Hi there!👋"
+    
+    
 @app.get("/start", response_class=HTMLResponse)
 def index_start():
     return """
@@ -27,7 +32,6 @@ def index_start():
         </body>
     </html>
     """
-
 
     
 @app.post("/check", response_class=HTMLResponse)
@@ -64,4 +68,19 @@ def index_start(credentials: HTTPBasicCredentials = Depends(security)):
         )
     
     
+class Format_Details(BaseModel):
+    format: str
+        
     
+@app.get("/info")
+def check_format(format: Format_Details, response: Response, user_agent: Union[str, None] = Header(default=None)):
+    json_respone  = {
+    "user_agent": user_agent
+    }
+    html_response = """<input type="text" id=user-agent name=agent value="{user_agent}">"""
+    if format.format == "html":
+        return html_response 
+    elif format.format == "json": 
+        return json_respone     
+    else: 
+        response.status_code = status.HTTP_400_BAD_REQUEST
